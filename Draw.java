@@ -12,7 +12,10 @@ public class Draw extends JComponent{
 	private BufferedImage image;
 	private BufferedImage backgroundImage;
 	public URL resource = getClass().getResource("run0.png");
-
+	
+	public boolean runback = false;
+	public boolean right = true;
+    public boolean notMoving = true;
 	// circle's position
 	public int x = 30;
 	public int y = 30;
@@ -78,6 +81,37 @@ public class Draw extends JComponent{
 		}
 	}
 
+	public void reloadImage1(){
+        state++;
+        runback = true;
+        if(state == 0){
+            resource = getClass().getResource("runback0.png");
+        }
+        else if(state == 1){
+            resource = getClass().getResource("runback1.png");
+        }
+        else if(state == 2){
+            resource = getClass().getResource("runback2.png");
+        }
+        else if(state == 3){
+            resource = getClass().getResource("runback3.png");
+        }
+        else if(state == 4){
+            resource = getClass().getResource("runback4.png");
+        }
+        else if(state == 5){
+            resource = getClass().getResource("runback5.png");
+            state = 0;
+        }
+
+        try{ 
+            image = ImageIO.read(resource);
+        }
+        catch(IOException e){
+            e.printStackTrace();
+        }
+    }
+
 	public void attackAnimation(){
 		Thread thread1 = new Thread(new Runnable(){
 			public void run(){
@@ -123,18 +157,24 @@ public class Draw extends JComponent{
 		repaint();
 	}
 
-	public void moveLeft(){
-		x = x - 5;
-		reloadImage();
-		repaint();
-	}
 
-	public void moveRight(){
-		x = x + 5;
-		reloadImage();
-		repaint();
-	}
-	
+	public void moveLeft(){
+        notMoving = false;
+        right = false;
+        x = x - 5;
+        reloadImage1();
+        repaint();
+        
+    }
+
+    public void moveRight(){
+        notMoving = false;
+        right = true;
+        x = x + 5;
+        reloadImage();
+        repaint();
+       
+    }
 	public void paintComponent(Graphics g){
 		super.paintComponent(g);
 		g.setColor(Color.YELLOW);
