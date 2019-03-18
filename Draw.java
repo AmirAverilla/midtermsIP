@@ -2,16 +2,20 @@ import javax.swing.JComponent;
 import javax.swing.Timer;
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Rectangle;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.net.URL;
+import java.util.*;
 
 public class Draw extends JComponent{
 
 	private BufferedImage image;
 	private BufferedImage backgroundImage;
 	public URL resource = getClass().getResource("run0.png");
+
+	public Random randomizer = new Random();
 	
 	public boolean runback = false;
 	public boolean right = true;
@@ -22,6 +26,8 @@ public class Draw extends JComponent{
 
 	// animation states
 	public int state = 0;
+
+	LinkedList<Monster> monsterList = new LinkedList<Monster>();
 
 	Monster monster1;
 	Monster monster2;
@@ -41,6 +47,8 @@ public class Draw extends JComponent{
 		dragon2 = new Dragon(200, 300);
 		dragon3 = new Dragon(200, 400);
 
+		monsterList.add(monster1);
+
 		try{
 			image = ImageIO.read(resource);
 			backgroundImage = ImageIO.read(getClass().getResource("background.jpg"));
@@ -48,6 +56,12 @@ public class Draw extends JComponent{
 		catch(IOException e){
 			e.printStackTrace();
 		}
+	}
+
+	public void addMonster(){
+		Monster monsterCreated = new Monster(randomizer.nextInt(400), randomizer.nextInt(400));
+		monsterList.add(monsterCreated);
+		this.repaint();
 	}
 
 	public void reloadImage(){
@@ -130,6 +144,14 @@ public class Draw extends JComponent{
 						catch(IOException e){
 							e.printStackTrace();
 						}
+
+						checkCollision();
+						for(Monster monster : monsterList){
+							if(monster.collided){
+								monster.health = monster.health - 10;
+							}
+						}
+
 				        repaint();
 				        Thread.sleep(100);
 					} catch (InterruptedException e) {
@@ -164,7 +186,15 @@ public class Draw extends JComponent{
         x = x - 5;
         reloadImage1();
         repaint();
-        
+    }
+
+    public void checkCollision(){
+    	Rectangle playerBounds = new Rectangle(x, y, image.getWidth(), image.getHeight());
+    	for(Monster monsters: monsterList){
+    		if(playerBounds.intersects(monsters.getBounds())){
+    			monsters.collided = true;
+    		}
+    	}
     }
 
     public void moveRight(){
@@ -184,6 +214,12 @@ public class Draw extends JComponent{
 		g.drawImage(monster1.image, monster1.xPos, monster1.yPos, this);
 		g.drawImage(monster2.image, monster2.xPos, monster2.yPos, this);
 		g.drawImage(monster3.image, monster3.xPos, monster3.yPos, this);
+
+		for(Monster monster:monsterList){
+			g.drawImage(monster.image, monster.xPos, monster.yPos, this);
+			g.setColor(Color.GREEN);
+			g.fillRect(monster.xPos, monster.yPos-5, monster.health, 5);
+		}
 
 		g.drawImage(dragon1.image, dragon1.xPos, dragon1.yPos, this);
 		g.drawImage(dragon2.image, dragon2.xPos, dragon2.yPos, this);
